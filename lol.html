@@ -1,0 +1,434 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LoL MBTI Finder</title>
+  <meta name="author" content="Mijin Yoo">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" href="images/favicon/melody.ico" type="image/x-icon">
+  <link rel="stylesheet" href="stylesheet.css">
+  <style>
+    body {
+      background-color: #fffdf7;
+      font-family: sans-serif;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 40px 20px;
+    }
+    .question-block {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #fef0f4;
+      border-radius: 10px;
+    }
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .result {
+      margin-top: 40px;
+      font-size: 1.2em;
+      text-align: center;
+    }
+    button {
+      background-color: #f4c2c2;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #e8a1a1;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1 style="text-align:center;">💌미미가 알려줄게, 너와 어울리는 롤 챔피언🎮</h1>
+    <div id="genderBlock" class="question-block">
+        <div class="question-title">성별을 선택하세요:</div>
+        <label><input type="radio" name="gender" value="male"> 남성</label><br>
+        <label><input type="radio" name="gender" value="female"> 여성</label><br><br>
+        <div style="text-align:center;">
+            <button type="button" onclick="startTest()">시작하기</button>
+        </div>
+    </div>
+
+    <form id="mbtiForm" style="display: none;">
+      <div id="progress-container" style="margin-bottom: 20px;">
+        <div id="progress-bar-bg" style="background-color: #ffe4ec; height: 12px; border-radius: 6px; overflow: hidden;">
+            <div id="progress-bar" style="width: 0%; height: 100%; background-color: #f4c2c2; transition: width 0.3s ease;"></div>
+        </div>
+        <div id="progress-text" style="text-align: center; margin-top: 8px;"><strong>1 / 12</strong></div>
+      </div>
+
+
+      <div class="question-block" id="questionBlock"></div>
+
+      <div style="text-align:center;">
+        <button type="button" id="restartBtn">처음으로</button>
+        <button type="button" id="prevBtn">이전</button>
+        <button type="button" id="nextBtn">다음</button>
+        <button type="submit" id="submitBtn" style="display:none;">결과 보기</button>
+      </div>
+    </form>
+
+    <div class="result" id="resultBox"></div>
+  </div>
+
+  <script>
+
+  
+    const questions = [
+      { name: "ei1", type: "E/I", text: "3인큐 하려는데 친구가 하는 말, 내 친구 2명 불러도 돼?", options: ["오 5인큐? 당장 불러.", "난 그냥 3인큐도 좋은데.."] },
+      { name: "ei2", type: "E/I", text: "어쩌다 참가하게 된 지인 배 5대5. 디스코드에서의 나,", options: ["내전? 도파민 터지네, 적극 보이스!", "주로 듣는다. 필요한 오더만!"] },
+      { name: "ei3", type: "E/I", text: "새 시즌 시작! 이번 주말이면 나는?", options: ["친구 모아서 같이 와장창 돌릴 준비 완.", "내 루틴대로 연습부터. 혼자만의 연마를 시작하지."] },
+      { name: "sn1", type: "S/N", text: "새로운 패치가 떴다.", options: ["구체적인 수치 변화부터 본다.", "전체적인 메타 흐름 파악 먼저."] },
+      { name: "sn2", type: "S/N", text: "라인전에서 CS를 먹을 때", options: ["정확한 타이밍 계산이 중요해.", "라인전은 곧 심리전. 상대 심리 파악이 중요해."] },
+      { name: "sn3", type: "S/N", text: "솔직히 내 원픽챔, 이렇게 골라졌다.", options: ["승률, 티어표, 픽률 참고. 확신의 강챔.", "느낌, 스타일, 너가 나를 이리로 이끌었다."] },
+      { name: "ft1", type: "F/T", text: "팀원이 트롤을 했다. 고의는 아닌 것 같은데,", options: ["그래 쟤도 얼마나 고생이냐. 내가 캐리해보자.", "롤은 팀 게임. 넌 나가라."] },
+      { name: "ft2", type: "F/T", text: "친구가 이 챔피언 예쁘지 않냐고 한다. 그런데 하나도 안 예쁘다. 나의 대답은?", options: ["괜찮은데?", "하나도 안 예뻐."] },
+      { name: "ft3", type: "F/T", text: "같이 하는 친구가 자꾸 같은 실수를 반복한다. 이 판이 끝나고 나는?", options: ["분위기 망칠까 봐 그냥 넘어간다.", "확실하게 뭐가 문제인지 얘기해준다."] },
+      { name: "pj1", type: "P/J", text: "픽창에서 챔피언을 고르려다 시간이 다 됐다. 랜덤으로 골라진 챔피언.. 내 반응은?", options: ["(애써) 오히려 좋아. 가는 거야!", "... (이번 판 내내 찝찝함)"] },
+      { name: "pj2", type: "P/J", text: "할 일이 남았는데 친구가 게임하자고 한다.", options: ["그래, 같이 게임하려면 지금 해야지. 할 일은 2시간 뒤에 할래.", "일단 할 일 끝나면 연락 준다고 말하고 하려던 일부터."] },
+      { name: "pj3", type: "P/J", text: "이번 시즌 목표는 플래티넘. 어떻게 접근할까?", options: ["일단 큐부터 돌리고 보자. 하다 보면 오르겠지.", "각종 유튜브 참고. 목표, 스케줄, 챔프 폭 좀 짜두고 차근차근 간다."] }
+    ];
+
+    let currentIndex = 0;
+    const answers = {};
+    let gender = "";
+
+    const questionBlock = document.getElementById("questionBlock");
+    const restartBtn = document.getElementById("restartBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const submitBtn = document.getElementById("submitBtn");
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    shuffle(questions);  // 질문 섞기 실행
+
+    function startTest() {
+        const selected = document.querySelector('input[name="gender"]:checked');
+        if (!selected) {
+        alert("성별을 선택해주세요.");
+        return;
+        }
+        gender = selected.value;
+        document.getElementById("genderBlock").style.display = "none";
+        document.getElementById("mbtiForm").style.display = "block";
+        renderQuestion(currentIndex);
+    }
+
+    function renderQuestion(index) {
+      const q = questions[index];
+      const progressPercent = ((index + 1) / questions.length) * 100;
+      document.getElementById("progress-bar").style.width = `${progressPercent}%`;
+      document.getElementById("progress-text").innerHTML = `<strong>${index + 1} / ${questions.length}</strong>`;
+      const selected = answers[q.name] || "";
+      questionBlock.innerHTML = `
+        <div class="question-title">${q.text}</div>
+        ${q.options.map(opt => `
+          <label>
+            <input type="radio" name="${q.name}" value="${opt}" ${selected === opt ? "checked" : ""}> ${opt}
+          </label><br>`).join("")}
+      `;
+      prevBtn.style.display = index > 0 ? "inline-block" : "none";
+      nextBtn.style.display = index < questions.length - 1 ? "inline-block" : "none";
+      submitBtn.style.display = index === questions.length - 1 ? "inline-block" : "none";
+    }
+
+
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            const isFormVisible = document.getElementById("mbtiForm").style.display !== "none";
+
+            if (isFormVisible && currentIndex < questions.length - 1) {
+            e.preventDefault();
+            nextBtn.click();  // 다음 버튼 누른 것처럼 동작
+            }
+        }
+    });
+
+
+    function saveAnswer() {
+      const q = questions[currentIndex];
+      const selected = document.querySelector(`input[name="${q.name}"]:checked`);
+      if (selected) answers[q.name] = selected.value;
+    }
+
+    renderQuestion(currentIndex);
+
+    restartBtn.onclick = () => {
+        // 상태 초기화
+        currentIndex = 0;
+        for (const key in answers) delete answers[key];
+        gender = "";
+
+        // UI 초기화
+        document.getElementById("mbtiForm").style.display = "none";
+        document.getElementById("genderBlock").style.display = "block";
+        document.getElementById("resultBox").innerHTML = "";
+
+        // 라디오 선택 해제
+        document.querySelectorAll('input[name="gender"]').forEach(el => el.checked = false);
+    };
+
+    prevBtn.onclick = () => {
+      saveAnswer();
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion(currentIndex);
+      }
+    };
+
+    nextBtn.onclick = () => {
+      if (!document.querySelector(`input[name="${questions[currentIndex].name}"]:checked`)) {
+        alert("답변을 선택해주세요.");
+        return;
+      }
+      saveAnswer();
+      if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        renderQuestion(currentIndex);
+      }
+    };
+
+    document.getElementById("mbtiForm").onsubmit = function(e) {
+      e.preventDefault();
+      saveAnswer();
+
+      const ei = [answers["ei1"], answers["ei2"], answers["ei3"]];
+      const sn = [answers["sn1"], answers["sn2"], answers["sn3"]];
+      const ft = [answers["ft1"], answers["ft2"], answers["ft3"]];
+      const pj = [answers["pj1"], answers["pj2"], answers["pj3"]];
+
+      function majority(arr) {
+        const count = {};
+        arr.forEach(v => count[v] = (count[v] || 0) + 1);
+        return count[arr[0]] > 1 ? arr[0] : arr[1];
+      }
+
+      const mbti = majority(ei) + majority(sn) + majority(ft) + majority(pj);
+
+      const champions = {
+        "INTJ": {
+            male: {
+            name: "제드",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Zed_0.jpg"
+            },
+            female: {
+            name: "리산드라",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lissandra_0.jpg"
+            }
+        },
+        "INTP": {
+            male: {
+            name: "빅토르",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Viktor_0.jpg"
+            },
+            female: {
+            name: "벨코즈",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Velkoz_0.jpg"
+            }
+        },
+        "ENTJ": {
+            male: {
+            name: "스웨인",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Swain_0.jpg"
+            },
+            female: {
+            name: "레넥톤",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Renekton_0.jpg"
+            }
+        },
+        "ENTP": {
+            male: {
+            name: "에코",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ekko_0.jpg"
+            },
+            female: {
+            name: "이블린",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Evelynn_0.jpg"
+            }
+        },
+        "INFJ": {
+            male: {
+            name: "야스오",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yasuo_0.jpg"
+            },
+            female: {
+            name: "카르마",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Karma_0.jpg"
+            }
+        },
+        "INFP": {
+            male: {
+            name: "바루스",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Varus_0.jpg"
+            },
+            female: {
+            name: "유미",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Yuumi_0.jpg"
+            }
+        },
+        "ENFJ": {
+            male: {
+            name: "브라움",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Braum_0.jpg"
+            },
+            female: {
+            name: "세나",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Senna_0.jpg"
+            }
+        },
+        "ENFP": {
+            male: {
+            name: "라칸",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Rakan_0.jpg"
+            },
+            female: {
+            name: "징크스",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Jinx_0.jpg"
+            }
+        },
+        "ISTJ": {
+            male: {
+            name: "말파이트",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Malphite_0.jpg"
+            },
+            female: {
+            name: "케일",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kayle_0.jpg"
+            }
+        },
+        "ISFJ": {
+            male: {
+            name: "럼블",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Rumble_0.jpg"
+            },
+            female: {
+            name: "소라카",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Soraka_0.jpg"
+            }
+        },
+        "ESTJ": {
+            male: {
+            name: "판테온",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Pantheon_0.jpg"
+            },
+            female: {
+            name: "레오나",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Leona_0.jpg"
+            }
+        },
+        "ESFJ": {
+            male: {
+            name: "갈리오",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Galio_0.jpg"
+            },
+            female: {
+            name: "룰루",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Lulu_0.jpg"
+            }
+        },
+        "ISTP": {
+            male: {
+            name: "그레이브즈",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Graves_0.jpg"
+            },
+            female: {
+            name: "카타리나",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Katarina_0.jpg"
+            }
+        },
+        "ISFP": {
+            male: {
+            name: "케넨",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Kennen_0.jpg"
+            },
+            female: {
+            name: "아리",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ahri_0.jpg"
+            }
+        },
+        "ESTP": {
+            male: {
+            name: "드레이븐",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Draven_0.jpg"
+            },
+            female: {
+            name: "니코",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Neeko_0.jpg"
+            }
+        },
+        "ESFP": {
+            male: {
+            name: "브랜드",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Brand_0.jpg"
+            },
+            female: {
+            name: "세라핀",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Seraphine_0.jpg"
+            }
+        },
+        "default": {
+            male: {
+            name: "티모",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Teemo_0.jpg"
+            },
+            female: {
+            name: "티모",
+            image: "https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Teemo_0.jpg"
+            }
+        }
+      };
+
+      const mbtiDescriptions = {
+        "INTJ": "차갑고 치밀한",
+        "INTP": "논리의 심연에 빠진",
+        "ENTJ": "리더의 본능을 지닌",
+        "ENTP": "예측불허의 꾼",
+        "INFJ": "운명의 흐름을 읽는",
+        "INFP": "마음이 따뜻한 몽상가",
+        "ENFJ": "분위기를 이끄는 주인공",
+        "ENFP": "활발하게 날뛰는 폭죽",
+        "ISTJ": "묵묵히 승리를 쌓는",
+        "ISFJ": "조용히 팀을 받치는",
+        "ESTJ": "질서와 구조의 수호자",
+        "ESFJ": "모두의 팀원을 챙기는",
+        "ISTP": "쿨하고 즉흥적인",
+        "ISFP": "섬세하고 감각적인",
+        "ESTP": "무대 위의 핵심",
+        "ESFP": "에너지 넘치는 장난꾸러기",
+        "default": "미지의 정체성을 지닌"
+      };
+
+
+
+      const champGroup = champions[mbti] || champions["default"];
+      const desc = mbtiDescriptions[mbti] || mbtiDescriptions["default"];
+      const champ = champGroup[gender] || champions["default"][gender];
+      document.getElementById("resultBox").innerHTML =
+        `
+            <p><strong>${desc}</strong> 당신에게 어울리는 챔피언은<br>
+            <strong>${champ.name}</strong> 입니다!</p>
+            <img src="${champ.image}" alt="${champ.name}" style="max-width:100%; border-radius: 12px; margin-top: 20px;">
+        `;
+
+
+    };
+  </script>
+</body>
+</html>
