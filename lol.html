@@ -214,13 +214,31 @@
       const ft = [answers["ft1"], answers["ft2"], answers["ft3"]];
       const pj = [answers["pj1"], answers["pj2"], answers["pj3"]];
 
-      function majority(arr) {
+      function majority(arr, priorityOrder) {
         const count = {};
-        arr.forEach(v => count[v] = (count[v] || 0) + 1);
-        return count[arr[0]] > 1 ? arr[0] : arr[1];
+        arr.forEach(v => {
+          if (v) count[v] = (count[v] || 0) + 1;
+        });
+
+        const [a, b] = priorityOrder;
+        const aCount = count[a] || 0;
+        const bCount = count[b] || 0;
+
+        if (aCount > bCount) return a;
+        if (bCount > aCount) return b;
+
+        // 동점일 경우 우선순위 적용
+        return a;
       }
 
-      const mbti = majority(ei) + majority(sn) + majority(ft) + majority(pj);
+
+
+      const mbti =
+        majority(ei, ["E", "I"]) +
+        majority(sn, ["S", "N"]) +
+        majority(ft, ["F", "T"]) +
+        majority(pj, ["P", "J"]);
+
 
       const champions = {
         "INTJ": {
