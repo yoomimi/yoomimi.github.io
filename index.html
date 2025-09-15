@@ -2,6 +2,50 @@
 <html lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script>
+      (function () {
+        var a_idx = 0;
+        window.onclick = function (event) {
+          var a = new Array("✨", "🎀", "🌈", "🌸", "🎁", "🍧", "🍥", "💎",  "🌱" );
+
+          var heart = document.createElement("b");
+          heart.onselectstart = new Function('event.returnValue=false');
+
+          document.body.appendChild(heart).innerHTML = a[a_idx];
+          a_idx = (a_idx + 1) % a.length;
+          heart.style.cssText = "position: fixed;left:-100%;";
+
+          var f = 16,
+            x = event.clientX - f / 2,
+            y = event.clientY - f,
+            c = randomColor(),
+            a = 1,
+            s = 1.2;
+
+          var timer = setInterval(function () {
+            if (a <= 0) {
+              document.body.removeChild(heart);
+              clearInterval(timer);
+            } else {
+              heart.style.cssText = "font-size:16px;cursor: default;position: fixed;color:" +
+                c + ";left:" + x + "px;top:" + y + "px;opacity:" + a + ";transform:scale(" +
+                s + ");";
+
+              y--;
+              a -= 0.016;
+              s += 0.002;
+            }
+          }, 15)
+
+        }
+        function randomColor() {
+
+          return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math
+            .random() * 255)) + ")";
+
+        }
+      }());
+    </script>
 
     <title>Mijin Yoo</title>
 
@@ -41,8 +85,7 @@
                   <a href="https://www.linkedin.com/in/yoomimi/">LinkedIn</a> &nbsp;/&nbsp;
 <!--                  <a href="https://scholar.google.com/citations?hl=en&user=jktWnL8AAAAJ">Scholar</a> &nbsp;/&nbsp;-->
 <!--                  <a href="https://twitter.com/jon_barron">Twitter</a> &nbsp;/&nbsp;-->
-                  <a href="https://github.com/yoomimi">Github</a> &nbsp;/&nbsp;
-                  <a href="lol.html">LoL</a>
+                  <a href="https://github.com/yoomimi">Github</a>
                 </p>
               </td>
               <td style="padding:2.5%;width:40%;max-width:40%">
@@ -72,14 +115,13 @@
           </tbody></table>
           <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
 
-
     <tr onmouseout="enhancer_stop()" onmouseover="enhancer_start()" bgcolor="#fef0f4">
       <td style="padding:20px;width:30%;">
           <img src='images/mimi/paper2.png' width="180">
         </div>
       </td>
       <td style="padding:0px;width:70%;vertical-align:middle">
-        <a href="https://exploregs.github.io/">
+        <a href="https://github.com/minsu1206/ExploreGS">
 			<span class="papertitle">ExploreGS: Explorable 3D Scene Reconstruction with Virtual Camera Samplings and Diffusion Priors
 </span>
         </a>
@@ -88,13 +130,13 @@
         <br>
         <em>ICCV</em>, 2025
         <br>
-        <a href="https://exploregs.github.io/">project page</a> / <a href="https://arxiv.org/abs/2508.06014">arXiv</a>
-        <br>
 <!--        /-->
       </td>
     </tr>
 
-    <tr onmouseout="enhancer_stop()" onmouseover="enhancer_start()" bgcolor="#fffdf7">
+
+
+    <tr onmouseout="enhancer_stop()" onmouseover="enhancer_start()" bgcolor="#fef0f4">
       <td style="padding:20px;width:30%;">
           <img src='images/mimi/paper1.jpg' width="180">
         </div>
