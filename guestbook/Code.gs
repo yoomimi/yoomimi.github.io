@@ -11,6 +11,8 @@
 // POST …/exec  {action:"delete", key, id}          -> hide a note
 //
 // Set the owner key once: Project Settings > Script Properties > OWNER_KEY.
+// Every new note is also mailed to the script owner (the account the web app
+// runs as). To send it somewhere else, add a Script Property NOTIFY_EMAIL.
 
 var MAX_NAME = 20;
 var MAX_MESSAGE = 100;
@@ -93,9 +95,30 @@ function sign_(body) {
   try {
     var id = Utilities.getUuid();
     sheet_().appendRow([id, new Date(), name, message, '', '']);
+    notify_(name, message);
     return json_({ ok: true, id: id });
   } finally {
     lock.releaseLock();
+  }
+}
+
+// ---------- email notification ----------
+function notify_(name, message) {
+  try {
+    var to = PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL')
+      || Session.getEffectiveUser().getEmail();
+    if (!to) return;
+    var who = name || 'Anonymous';
+    MailApp.sendEmail({
+      to: to,
+      subject: '[Guestbook] ' + who + ': ' + message.slice(0, 40) + (message.length > 40 ? '…' : ''),
+      body: who + ' wrote:\n\n' + message + '\n\n' +
+        Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm') + '\n' +
+        'Sheet: ' + SpreadsheetApp.getActiveSpreadsheet().getUrl() + '\n' +
+        'Reply or delete: https://yoomimi.github.io/#admin'
+    });
+  } catch (err) {
+    // a mail failure must never block the note itself
   }
 }
 
