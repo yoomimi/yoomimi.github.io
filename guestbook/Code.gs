@@ -118,8 +118,24 @@ function notify_(name, message) {
         'Reply or delete: https://yoomimi.github.io/#admin'
     });
   } catch (err) {
-    // a mail failure must never block the note itself
+    // a mail failure must never block the note itself, but leave a trace
+    // in Apps Script > Executions so it can be diagnosed
+    console.error('notify_ failed: ' + err);
   }
+}
+
+// Run this once from the editor (select "testNotify" > Run) after adding
+// the mail feature. It makes Apps Script ask for the mail permission and
+// sends a test mail so you can confirm delivery.
+function testNotify() {
+  var to = PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL')
+    || Session.getEffectiveUser().getEmail();
+  MailApp.sendEmail({
+    to: to,
+    subject: '[Guestbook] test mail',
+    body: 'Guestbook notifications are working. Remaining daily quota: ' + MailApp.getRemainingDailyQuota()
+  });
+  Logger.log('Sent test mail to ' + to);
 }
 
 // ---------- owner actions ----------
