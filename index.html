@@ -469,9 +469,9 @@
     .encore a { border-bottom: 1px solid rgba(242,240,236,.3); transition: color .25s, border-color .25s; }
     .encore a:hover { color: var(--pink); border-color: var(--pink); }
     .stage .close {
-      position: absolute; top: 16px; right: 18px;
+      position: absolute; top: 76px; right: 18px; z-index: 5;
       font-family: var(--mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
-      color: var(--ink-3); background: none; border: 0; padding: 6px 0; cursor: pointer;
+      color: var(--ink-2); background: none; border: 0; padding: 6px 0; cursor: pointer;
     }
     .stage .close:hover { color: var(--pink); }
 
@@ -767,15 +767,15 @@
       <ul class="news">
         <li>
           <time>2026.12 – 2027.02</time>
-          <p>I will be a <strong>Visiting Scholar</strong> at <strong>UC Irvine</strong>, hosted by Prof. <a href="https://ics.uci.edu/~fowlkes/" target="_blank" rel="noopener">Charless Fowlkes</a>.</p>
+          <p>I will be a <strong>Visiting Scholar</strong> at <strong>UC Irvine</strong>, hosted by Prof. <a href="https://ics.uci.edu/~fowlkes/" target="_blank" rel="noopener">Charless Fowlkes</a>. 🌴</p>
         </li>
         <li>
           <time>2026.09</time>
-          <p>One paper accepted to <strong>NeurIPS 2026</strong>.</p>
+          <p>One paper accepted to <strong>NeurIPS 2026</strong>. 🎉</p>
         </li>
         <li>
           <time>2025.02.24</time>
-          <p>Received my Bachelor's degree in Electrical and Electronic Engineering from Yonsei University.</p>
+          <p>Received my Bachelor's degree in Electrical and Electronic Engineering from Yonsei University. 🎓</p>
         </li>
       </ul>
     </section>
@@ -1108,6 +1108,9 @@
       theaterClose.addEventListener("click", function (e) {
         e.stopPropagation();
         closeCurtain();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && theater.classList.contains("open")) closeCurtain();
       });
       // stop link clicks inside the stage from bubbling up
       var stageLinks = theater.querySelectorAll(".stage a");
