@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mijin Yoo</title>
+  <meta name="author" content="Mijin Yoo">
+  <meta name="description" content="Mijin Yoo (MJ) · Ph.D. student in AI at Yonsei University · spatial intelligence, scene tokenization, 3D/4D Gaussian Splatting.">
+  <meta name="theme-color" content="#fff5f8">
+  <link rel="shortcut icon" href="images/favicon/melody.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="stylesheet.css">
+
+  <!-- ✨ click emoji sparkle (keep!) -->
+  <script>
+    (function () {
+      var a_idx = 0;
+      window.onclick = function (event) {
+        var a = new Array("✨", "🎀", "🌈", "🌸", "🎁", "🍧", "🍥", "💎", "🌱");
+
+        var heart = document.createElement("b");
+        heart.onselectstart = new Function('event.returnValue=false');
+
+        document.body.appendChild(heart).innerHTML = a[a_idx];
+        a_idx = (a_idx + 1) % a.length;
+        heart.style.cssText = "position: fixed;left:-100%;";
+
+        var f = 16,
+          x = event.clientX - f / 2,
+          y = event.clientY - f,
+          c = randomColor(),
+          a = 1,
+          s = 1.2;
+
+        var timer = setInterval(function () {
+          if (a <= 0) {
+            document.body.removeChild(heart);
+            clearInterval(timer);
+          } else {
+            heart.style.cssText = "font-size:16px;cursor: default;position: fixed;z-index:10000;pointer-events:none;color:" +
+              c + ";left:" + x + "px;top:" + y + "px;opacity:" + a + ";transform:scale(" +
+              s + ");";
+
+            y--;
+            a -= 0.016;
+            s += 0.002;
+          }
+        }, 15)
+
+      }
+      function randomColor() {
+        return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math
+          .random() * 255)) + ")";
+      }
+    }());
+  </script>
+</head>
+
+<body>
+  <!-- soft background blobs -->
+  <div class="bg" aria-hidden="true">
+    <span class="blob blob-1"></span>
+    <span class="blob blob-2"></span>
+    <span class="blob blob-3"></span>
+  </div>
+
+  <!-- top nav -->
+  <header class="nav">
+    <a href="#top" class="nav-logo">MJ <span>✨</span></a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#about">About</a>
+      <a href="#news">News</a>
+      <a href="#publications">Papers</a>
+      <a href="#awards">Honors</a>
+      <a href="#teaching">Teaching</a>
+      <a href="#misc">Misc</a>
+    </nav>
+  </header>
+
+  <main id="top" class="page">
+
+    <!-- ===== HERO ===== -->
+    <section id="about" class="hero reveal">
+      <div class="hero-text">
+        <span class="pill pill-status"><span class="dot"></span> Ph.D. student @ Yonsei AI</span>
+        <h1 class="hero-name">
+          <span class="wave">👋</span> Hi, I'm<br>
+          <span class="gradient-text">Mijin Yoo</span>
+        </h1>
+        <p class="hero-bio">
+          I am an Integrated M.S./Ph.D. student in <strong>Artificial Intelligence</strong> at
+          <strong>Yonsei University</strong>, advised by Prof. <a href="https://www.ciplab.kr/home">Seon Joo Kim</a>.
+          I received my Bachelor's degree in Electrical and Electronic Engineering from Yonsei University in February 2025.
+        </p>
+        <p class="hero-bio">
+          My research interests lie in <strong>spatial intelligence</strong>, <strong>scene tokenization</strong>,
+          and <strong>3D/4D Gaussian Splatting</strong>.
+        </p>
+
+        <div class="socials">
+          <a class="btn btn-primary" href="mailto:mijin6690@yonsei.ac.kr">✉️ Email</a>
+          <a class="btn" href="https://www.linkedin.com/in/yoomimi/" target="_blank" rel="noopener">💼 LinkedIn</a>
+          <a class="btn" href="https://github.com/yoomimi" target="_blank" rel="noopener">🐙 GitHub</a>
+        </div>
+      </div>
+
+      <div class="hero-photo">
+        <div class="photo-wrap">
+          <div class="speech-bubble">Mijin's a mouthful?<br>Just call me <strong>MJ</strong>&nbsp;✨</div>
+          <a href="images/mimi/picture.jpg" class="lightbox-link photo-ring">
+            <img src="images/mimi/picture.jpg" alt="Mijin Yoo profile photo">
+          </a>
+          <span class="float-emoji e1" aria-hidden="true">🌸</span>
+          <span class="float-emoji e2" aria-hidden="true">💎</span>
+          <span class="float-emoji e3" aria-hidden="true">🎀</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== NEWS ===== -->
+    <section id="news" class="section reveal">
+      <h2 class="section-title"><span class="emoji">📰</span> News</h2>
+      <ul class="timeline">
+        <li>
+          <time>2026.12 – 2027.02</time>
+          <p>I will be a <strong>Visiting Scholar</strong> at <strong>UC Irvine</strong>, hosted by Prof. <a href="https://ics.uci.edu/~fowlkes/" target="_blank" rel="noopener">Charless Fowlkes</a>. 🌴</p>
+        </li>
+        <li>
+          <time>2026.09</time>
+          <p>One paper accepted to <strong>NeurIPS 2026</strong>! 🎉</p>
+        </li>
+        <li>
+          <time>2025.02.24</time>
+          <p>I received my Bachelor's degree in Electrical and Electronic Engineering from Yonsei University. 🎓</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ===== PUBLICATIONS ===== -->
+    <section id="publications" class="section reveal">
+      <h2 class="section-title"><span class="emoji">📚</span> Publications</h2>
+
+      <div class="papers">
+
+        <article class="paper paper-featured">
+          <a href="images/mimi/instok3d.png" class="lightbox-link paper-thumb">
+            <img src="images/mimi/instok3d.png" alt="Scenes as Objects teaser">
+          </a>
+          <div class="paper-body">
+            <div class="paper-badges">
+              <span class="badge badge-new">NEW</span>
+              <span class="badge badge-venue">NeurIPS 2026</span>
+            </div>
+            <h3 class="paper-title">
+              <a href="https://yoomimi.github.io/instok3d/">Scenes as Objects, Not Primitives: Instance-Structured 3D Tokenization from Unposed Views</a>
+            </h3>
+            <p class="paper-authors"><strong>Mijin Yoo</strong>*, In Cho*, Subin Jeon, Jiwoo Lee, Eunbyung Park, Seon Joo Kim.</p>
+            <div class="paper-links">
+              <a class="link-pill" href="https://arxiv.org/abs/2606.29513">📄 arXiv</a>
+              <a class="link-pill" href="https://yoomimi.github.io/instok3d/">🔗 Project Page</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="paper">
+          <a href="images/mimi/atsplat.png" class="lightbox-link paper-thumb">
+            <img src="images/mimi/atsplat.png" alt="ATSplat teaser">
+          </a>
+          <div class="paper-body">
+            <div class="paper-badges">
+              <span class="badge badge-venue">arXiv 2026</span>
+            </div>
+            <h3 class="paper-title">
+              <a href="https://join16.github.io/page-atsplat/">ATSplat: Compact Feed-forward 3D Gaussian Splatting with Adaptive Token Expansion</a>
+            </h3>
+            <p class="paper-authors">In Cho, Jeonghwan Cho, <strong>Mijin Yoo</strong>, Gim Hee Lee, Seon Joo Kim.</p>
+            <div class="paper-links">
+              <a class="link-pill" href="https://arxiv.org/abs/2607.20417">📄 arXiv</a>
+              <a class="link-pill" href="https://join16.github.io/page-atsplat/">🔗 Project Page</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="paper">
+          <a href="images/mimi/paper2.png" class="lightbox-link paper-thumb">
+            <img src="images/mimi/paper2.png" alt="ExploreGS teaser">
+          </a>
+          <div class="paper-body">
+            <div class="paper-badges">
+              <span class="badge badge-venue">ICCV 2025</span>
+            </div>
+            <h3 class="paper-title">
+              <a href="https://github.com/minsu1206/ExploreGS">ExploreGS: Explorable 3D Scene Reconstruction with Virtual Camera Samplings and Diffusion Priors</a>
+            </h3>
+            <p class="paper-authors">Minsu Kim, Subin Jeon, In Cho, <strong>Mijin Yoo</strong>, Seon Joo Kim.</p>
+            <div class="paper-links">
+              <a class="link-pill" href="https://arxiv.org/abs/2508.06014">📄 arXiv</a>
+              <a class="link-pill" href="https://exploregs.github.io/">🔗 Project Page</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="paper">
+          <a href="images/mimi/paper1.jpg" class="lightbox-link paper-thumb">
+            <img src="images/mimi/paper1.jpg" alt="Rendering for Esports teaser">
+          </a>
+          <div class="paper-body">
+            <div class="paper-badges">
+              <span class="badge badge-venue">IEEE CG&amp;A 2024</span>
+            </div>
+            <h3 class="paper-title">
+              <a href="https://ieeexplore.ieee.org/document/10478358">Is Less More? Rendering for Esports</a>
+            </h3>
+            <p class="paper-authors">Benjamin Watson, Josef Spjut, Joohwan Kim, Byungjoo Lee, <strong>Mijin Yoo</strong>, Peter Shirley.</p>
+            <p class="paper-venue"><em>IEEE Computer Graphics and Applications</em>, March–April 2024</p>
+            <div class="paper-links">
+              <a class="link-pill" href="https://ieeexplore.ieee.org/document/10478358">📄 Paper</a>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ===== HONORS & AWARDS ===== -->
+    <section id="awards" class="section reveal">
+      <h2 class="section-title"><span class="emoji">🏆</span> Honors &amp; Awards</h2>
+      <ul class="list">
+        <li class="card list-item">
+          <div class="list-icon">🎓</div>
+          <div class="list-body">
+            <p class="list-title">AI Seoul Tech Scholarship</p>
+            <p class="list-desc">Seoul Metropolitan Government · One-year scholarship</p>
+          </div>
+          <span class="list-when">2026</span>
+        </li>
+        <li class="card list-item">
+          <div class="list-icon">🎓</div>
+          <div class="list-body">
+            <p class="list-title">AI Seoul Tech Scholarship</p>
+            <p class="list-desc">Seoul Metropolitan Government · One-semester scholarship</p>
+          </div>
+          <span class="list-when">Fall 2025</span>
+        </li>
+        <li class="card list-item">
+          <div class="list-icon">🥉</div>
+          <div class="list-body">
+            <p class="list-title"><strong>3rd Place</strong>, <a href="https://sites.google.com/view/ultrra-wacv-2025?pli=1">ULTRRA Challenge</a> (WACV 2025 Workshop)</p>
+            <p class="list-desc">Unconstrained Large-scale Three-dimensional Reconstruction and Rendering across Altitudes</p>
+          </div>
+          <span class="list-when">2025</span>
+        </li>
+        <li class="card list-item">
+          <div class="list-icon">🏅</div>
+          <div class="list-body">
+            <p class="list-title">Honors Award for Academic Excellence</p>
+            <p class="list-desc">Yonsei University</p>
+          </div>
+          <span class="list-when">Spring 2024</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ===== TEACHING ===== -->
+    <section id="teaching" class="section reveal">
+      <h2 class="section-title"><span class="emoji">🧑‍🏫</span> Teaching Experience</h2>
+      <div class="card teaching">
+        <div class="teaching-head">
+          <p class="list-title">Teaching Assistant, Yonsei University</p>
+          <span class="list-when">Mar. 2025 – Present</span>
+        </div>
+        <ul class="courses">
+          <li>
+            <span class="course-name">Global Leadership</span> <span class="course-code">YCI1853</span>
+            <span class="course-meta">undergraduate · Spring 2026, Fall 2026 <span class="badge badge-new">current</span></span>
+          </li>
+          <li>
+            <span class="course-name">Introduction to Artificial Intelligence and Applications</span> <span class="course-code">AIC2120</span>
+            <span class="course-meta">undergraduate · Fall 2025</span>
+          </li>
+          <li>
+            <span class="course-name">Computer Vision</span> <span class="course-code">CAS3116</span>
+            <span class="course-meta">undergraduate · Spring 2025</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== MISC ===== -->
+    <section id="misc" class="section reveal">
+      <h2 class="section-title"><span class="emoji">🍧</span> Miscellaneous</h2>
+      <div class="card misc">
+        <p class="misc-text">
+          I love
+          <a href="images/mimi/Movies_MJ.png" class="lightbox-link misc-link">movies</a> 🎬
+          and
+          <a href="https://open.spotify.com/user/31qoxu6kivtyzf7wuh2snb2txuqu?si=f661910c37024285" target="_blank" rel="noopener" class="misc-link">music</a> 🎧
+        </p>
+        <p class="misc-hint">(psst, click them 👀)</p>
+        <p class="misc-text misc-text-sm">
+          Oh, and I have a <a href="https://www.youtube.com/@163.o2" target="_blank" rel="noopener" class="misc-link">YouTube channel</a> 📺
+          Curious? Just click it!
+        </p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Made with 🩷 by MJ</p>
+    </footer>
+  </main>
+
+  <!-- lightbox -->
+  <div id="lightbox-overlay">
+    <span id="lightbox-close" aria-label="Close">&times;</span>
+    <img id="lightbox-img" src="" alt="enlarged image">
+  </div>
+
+  <script>
+    (function () {
+      // ---- lightbox ----
+      var overlay = document.getElementById("lightbox-overlay");
+      var lightboxImg = document.getElementById("lightbox-img");
+      var closeBtn = document.getElementById("lightbox-close");
+
+      function openLightbox(src) {
+        lightboxImg.src = src;
+        overlay.classList.add("open");
+      }
+      function closeLightbox() {
+        overlay.classList.remove("open");
+        lightboxImg.src = "";
+      }
+
+      var links = document.querySelectorAll("a.lightbox-link");
+      for (var i = 0; i < links.length; i++) {
+        links[i].addEventListener("click", function (e) {
+          e.preventDefault();
+          openLightbox(this.getAttribute("href"));
+        });
+      }
+      closeBtn.addEventListener("click", closeLightbox);
+      overlay.addEventListener("click", function (e) {
+        if (e.target === overlay) closeLightbox();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeLightbox();
+      });
+
+      // ---- scroll reveal ----
+      var reveals = document.querySelectorAll(".reveal");
+      if ("IntersectionObserver" in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+          });
+        }, { threshold: 0.12 });
+        reveals.forEach(function (el) { io.observe(el); });
+      } else {
+        reveals.forEach(function (el) { el.classList.add("in"); });
+      }
+
+      // ---- nav active state ----
+      var navLinks = document.querySelectorAll(".nav-links a");
+      var sections = Array.prototype.map.call(navLinks, function (a) {
+        return document.querySelector(a.getAttribute("href"));
+      });
+      function updateNav() {
+        var y = window.scrollY + 140;
+        var current = 0;
+        sections.forEach(function (s, i) { if (s && s.offsetTop <= y) current = i; });
+        navLinks.forEach(function (a, i) { a.classList.toggle("active", i === current); });
+      }
+      window.addEventListener("scroll", updateNav, { passive: true });
+      updateNav();
+    }());
+  </script>
+</body>
+</html>

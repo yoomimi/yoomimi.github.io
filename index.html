@@ -6,75 +6,618 @@
   <title>Mijin Yoo</title>
   <meta name="author" content="Mijin Yoo">
   <meta name="description" content="Mijin Yoo (MJ) · Ph.D. student in AI at Yonsei University · spatial intelligence, scene tokenization, 3D/4D Gaussian Splatting.">
-  <meta name="theme-color" content="#fff5f8">
+  <meta name="theme-color" content="#0b0b0b">
   <link rel="shortcut icon" href="images/favicon/melody.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="stylesheet.css">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <!-- ✨ click emoji sparkle (keep!) -->
-  <script>
-    (function () {
-      var a_idx = 0;
-      window.onclick = function (event) {
-        var a = new Array("✨", "🎀", "🌈", "🌸", "🎁", "🍧", "🍥", "💎", "🌱");
+  <style>
+    /* =========================================================
+       TOKENS
+       ========================================================= */
+    :root {
+      --bg: #0b0b0b;
+      --bg-2: #111111;
+      --ink: #f2f0ec;
+      --ink-2: #b9b5ad;
+      --ink-3: #6f6b64;
+      --line: #262626;
+      --pink: #ff6b9f;
+      --pink-2: #ff9cc0;
+      --pink-deep: #b8104f;
 
-        var heart = document.createElement("b");
-        heart.onselectstart = new Function('event.returnValue=false');
+      --serif: "Instrument Serif", "Times New Roman", serif;
+      --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-        document.body.appendChild(heart).innerHTML = a[a_idx];
-        a_idx = (a_idx + 1) % a.length;
-        heart.style.cssText = "position: fixed;left:-100%;";
+      --max: 1120px;
+      --gutter: clamp(16px, 4vw, 48px);
+    }
 
-        var f = 16,
-          x = event.clientX - f / 2,
-          y = event.clientY - f,
-          c = randomColor(),
-          a = 1,
-          s = 1.2;
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    html, body { margin: 0; padding: 0; }
 
-        var timer = setInterval(function () {
-          if (a <= 0) {
-            document.body.removeChild(heart);
-            clearInterval(timer);
-          } else {
-            heart.style.cssText = "font-size:16px;cursor: default;position: fixed;z-index:10000;pointer-events:none;color:" +
-              c + ";left:" + x + "px;top:" + y + "px;opacity:" + a + ";transform:scale(" +
-              s + ");";
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-weight: 300;
+      font-size: 16px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
 
-            y--;
-            a -= 0.016;
-            s += 0.002;
-          }
-        }, 15)
+    ::selection { background: var(--pink); color: #000; }
 
-      }
-      function randomColor() {
-        return "rgb(" + (~~(Math.random() * 255)) + "," + (~~(Math.random() * 255)) + "," + (~~(Math
-          .random() * 255)) + ")";
-      }
-    }());
-  </script>
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* film grain */
+    .grain {
+      position: fixed; inset: -50%; z-index: 9000;
+      pointer-events: none;
+      opacity: .055;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      animation: grain 1.2s steps(4) infinite;
+    }
+    @keyframes grain {
+      0%   { transform: translate(0, 0); }
+      25%  { transform: translate(-2%, 3%); }
+      50%  { transform: translate(3%, -1%); }
+      75%  { transform: translate(-1%, -3%); }
+      100% { transform: translate(2%, 2%); }
+    }
+
+    /* =========================================================
+       TYPE HELPERS
+       ========================================================= */
+    .mono {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink-2);
+    }
+    .ital { font-family: var(--serif); font-style: italic; font-weight: 400; }
+    .pink { color: var(--pink); }
+
+    .u {
+      position: relative;
+      transition: color .25s ease;
+    }
+    .u::after {
+      content: "";
+      position: absolute; left: 0; right: 0; bottom: -2px;
+      height: 1px; background: currentColor;
+      transform: scaleX(1); transform-origin: left;
+      transition: transform .35s cubic-bezier(.77,0,.18,1), background .25s;
+      opacity: .5;
+    }
+    .u:hover { color: var(--pink); }
+    .u:hover::after { background: var(--pink); opacity: 1; }
+
+    /* =========================================================
+       NAV
+       ========================================================= */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px var(--gutter);
+      background: linear-gradient(to bottom, rgba(11,11,11,.96), rgba(11,11,11,.7));
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-logo {
+      font-family: var(--serif);
+      font-size: 22px;
+      letter-spacing: .02em;
+      line-height: 1;
+    }
+    .nav-logo em { color: var(--ink); font-style: italic; }
+    .nav-links { display: flex; gap: 26px; }
+    .nav-links a {
+      font-family: var(--mono);
+      font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--ink-2);
+      transition: color .2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--pink); }
+
+    /* =========================================================
+       LAYOUT
+       ========================================================= */
+    .page { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+
+    .section {
+      padding: clamp(56px, 9vw, 110px) 0;
+      border-top: 1px solid var(--line);
+    }
+    .section-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 24px;
+      margin-bottom: clamp(32px, 5vw, 56px);
+    }
+    .section-num {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--pink);
+    }
+    .section-title {
+      margin: 0;
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(38px, 6.5vw, 72px);
+      line-height: 1.05;
+      letter-spacing: -.01em;
+    }
+    .section-title span.hl,
+    .hero-tags li span.hl {
+      background: var(--pink);
+      color: #0b0b0b;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+    .section-title span.hl {
+      display: inline-block;
+      line-height: .9;
+      padding: .04em .12em .1em;
+    }
+    .hero-tags li span.hl { display: inline; }
+    .section-aside { text-align: right; color: var(--ink-3); }
+
+    /* reveal */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.2,1); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* =========================================================
+       HERO
+       ========================================================= */
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: grid;
+      grid-template-columns: 1.25fr .9fr;
+      gap: clamp(32px, 6vw, 80px);
+      align-items: center;
+      padding: clamp(48px, 8vw, 96px) 0 clamp(40px, 6vw, 72px);
+      position: relative;
+    }
+
+    .hero-kicker {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 28px;
+    }
+    .hero-kicker .rule { width: 40px; height: 1px; background: var(--pink); }
+
+    .hero-name {
+      margin: 0 0 10px;
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(64px, 11.5vw, 140px);
+      line-height: .88;
+      letter-spacing: -.025em;
+      text-transform: uppercase;
+    }
+    .hero-name .line { display: block; }
+    .hero-name .ital { text-transform: none; color: var(--pink); letter-spacing: -.02em; font-size: .5em; margin-top: .18em; }
+
+    .hero-logline {
+      margin: 36px 0 0;
+      max-width: 560px;
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--ink-2);
+    }
+    .hero-logline strong { font-weight: 400; color: var(--ink); }
+    .hero-logline a { color: var(--ink); border-bottom: 1px solid var(--ink-3); transition: all .25s; }
+    .hero-logline a:hover { color: var(--pink); border-color: var(--pink); }
+
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 12px 14px; margin: 30px 0 0; padding: 0; list-style: none; }
+    .hero-tags li {
+      font-family: var(--sans); font-weight: 600; font-size: clamp(17px, 1.6vw, 20px);
+      letter-spacing: -.005em; line-height: 1.5;
+    }
+    .hero-tags li span.hl { padding: .08em .4em .1em; }
+
+    .hero-ctas { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 42px; }
+    .cta {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--ink);
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .cta::before { content: ""; width: 6px; height: 6px; background: var(--pink); transition: transform .3s; }
+    .cta:hover::before { transform: scale(1.8); }
+    .cta:hover { color: var(--pink); }
+
+    /* photo as a film still */
+    .still {
+      position: relative;
+      justify-self: end;
+      width: 100%;
+      max-width: 420px;
+    }
+    .still-frame-wrap { position: relative; }
+    .still-frame {
+      display: block;
+      position: relative;
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid var(--line);
+    }
+    .still-frame img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: grayscale(1) contrast(1.08) brightness(.92);
+      transform: scale(1.04);
+      transition: filter .7s ease, transform 1.2s cubic-bezier(.2,.7,.2,1);
+    }
+    .still-frame:hover img { filter: grayscale(0) contrast(1.02) brightness(1); transform: scale(1); }
+    .still-frame::after { transition: opacity .7s ease; }
+    .still-frame:hover::after { opacity: .35; }
+    .still-frame::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.78), rgba(0,0,0,.25) 28%, transparent 50%);
+      pointer-events: none;
+    }
+    /* =========================================================
+       NEWS
+       ========================================================= */
+    .news { list-style: none; margin: 0; padding: 0 0 0 34px; position: relative; }
+    .news::before {
+      content: "";
+      position: absolute; left: 5px; top: 30px; bottom: 30px;
+      width: 1px; background: var(--pink); opacity: .45;
+    }
+    .news li {
+      position: relative;
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 24px;
+      padding: 22px 0;
+    }
+    .news li::before {
+      content: "";
+      position: absolute; left: -34px; top: 30px;
+      width: 11px; height: 11px; border-radius: 50%;
+      background: var(--pink);
+      box-shadow: 0 0 0 4px var(--bg), 0 0 0 5px rgba(255,107,159,.45);
+    }
+    .news time { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; color: var(--pink); padding-top: 3px; }
+    .news p { margin: 0; font-size: 17px; color: var(--ink-2); }
+    .news p strong { font-weight: 400; color: var(--ink); }
+    .news p a { color: var(--ink); border-bottom: 1px solid var(--ink-3); }
+    .news p a:hover { color: var(--pink); border-color: var(--pink); }
+
+    /* =========================================================
+       PUBLICATIONS — film-credit style
+       ========================================================= */
+    .papers { list-style: none; margin: 0; padding: 0; }
+    .paper {
+      display: grid;
+      grid-template-columns: 90px 1fr 220px;
+      gap: 28px;
+      padding: 34px 0;
+      border-top: 1px solid var(--line);
+      align-items: start;
+    }
+    .paper:last-child { border-bottom: 1px solid var(--line); }
+    .paper-idx { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; color: var(--ink-3); padding-top: 8px; }
+    .paper-idx .venue { display: block; margin-top: 8px; color: var(--pink); white-space: nowrap; }
+    .paper-idx .new { display: inline-block; margin-top: 10px; padding: 2px 6px; border: 1px solid var(--pink); color: var(--pink); font-size: 9px; letter-spacing: .2em; }
+
+    .paper-title {
+      margin: 0 0 12px;
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.12;
+      letter-spacing: -.01em;
+    }
+    .paper-title a { color: var(--pink); transition: color .25s; }
+    .paper-title a:hover { color: var(--pink-2); }
+    .paper-authors { margin: 0; color: var(--ink-2); font-size: 15px; }
+    .paper-authors b { font-weight: 400; color: var(--ink); }
+    .paper-venue { margin: 6px 0 0; color: var(--ink-3); font-size: 14px; font-style: italic; font-family: var(--serif); font-size: 17px; }
+    .paper-links { display: flex; gap: 22px; margin-top: 16px; }
+    .paper-links a {
+      font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--ink-2);
+    }
+    .paper-links a::before { content: "→ "; color: var(--pink); }
+    .paper-links a:hover { color: var(--pink); }
+
+    .paper-thumb {
+      display: block;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #000;
+    }
+    .paper-thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .6s cubic-bezier(.2,.7,.2,1);
+    }
+    .paper-thumb:hover img { transform: scale(1.03); }
+
+    /* =========================================================
+       HONORS / TEACHING — credit rolls
+       ========================================================= */
+    .credits { list-style: none; margin: 0; padding: 0; }
+    .credits li {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 24px;
+      padding: 20px 0;
+      border-top: 1px solid var(--line);
+    }
+    .credits li:last-child { border-bottom: 1px solid var(--line); }
+    .credits .when { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; color: var(--pink); padding-top: 4px; }
+    .credits .what { margin: 0; font-size: 18px; }
+    .credits .what a { border-bottom: 1px solid var(--ink-3); }
+    .credits .what a:hover { color: var(--pink); border-color: var(--pink); }
+    .credits .sub { margin: 4px 0 0; color: var(--ink-3); font-size: 14px; }
+    .credits .sub .tag { font-family: var(--mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--pink); margin-left: 8px; }
+
+    /* =========================================================
+       MISC — THE THEATER
+       ========================================================= */
+    .theater-wrap { position: relative; }
+
+    .theater {
+      position: relative;
+      min-height: 420px;
+      background: #050505;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      cursor: pointer;
+      outline: none;
+    }
+    .theater:focus-visible { box-shadow: 0 0 0 2px var(--pink); }
+
+    /* stage floor / spotlight */
+    .stage {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 84px 40px 48px;
+      background:
+        radial-gradient(ellipse 60% 70% at 50% 20%, rgba(255,45,122,.16), transparent 70%),
+        radial-gradient(ellipse 80% 40% at 50% 100%, rgba(255,255,255,.05), transparent 70%),
+        #050505;
+      opacity: 0;
+      transform: scale(.98);
+      transition: opacity .9s ease .7s, transform 1.2s cubic-bezier(.2,.7,.2,1) .7s;
+    }
+    .theater.open .stage { opacity: 1; transform: none; }
+
+    .stage .marquee {
+      margin: 0 0 26px;
+      color: var(--pink);
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 300px));
+      gap: clamp(20px, 4vw, 48px);
+      justify-content: center;
+      width: 100%;
+    }
+    .feature { display: block; text-align: left; }
+    .feature-frame {
+      display: block; position: relative;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      border: 1px solid #2a2a2a;
+      background: #000;
+    }
+    .feature-frame img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: grayscale(1) contrast(1.08) brightness(.9);
+      transform: scale(1.03);
+      transition: filter .7s ease, transform 1.2s cubic-bezier(.2,.7,.2,1);
+    }
+    .feature:hover .feature-frame img { filter: grayscale(0) contrast(1.02); transform: scale(1); }
+    .feature-frame::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.5), transparent 40%);
+      pointer-events: none;
+    }
+    .feature-reel {
+      position: absolute; left: 12px; top: 10px; z-index: 2;
+      color: var(--ink); opacity: .8;
+      text-shadow: 0 1px 2px rgba(0,0,0,.6);
+    }
+    .feature-cap {
+      display: flex; justify-content: space-between; align-items: baseline;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid transparent;
+    }
+    .feature-title {
+      font-family: var(--serif);
+      font-size: clamp(26px, 3.2vw, 36px);
+      line-height: 1;
+      transition: color .3s;
+    }
+    .feature-sub { color: var(--ink-3); white-space: nowrap; transition: color .3s; }
+    .feature:hover .feature-title { color: var(--pink); }
+    .feature:hover .feature-sub { color: var(--pink); }
+
+    .encore {
+      margin: 40px 0 0;
+      font-family: var(--serif);
+      font-size: clamp(22px, 2.8vw, 30px);
+      line-height: 1.2;
+    }
+    .encore .ital { color: var(--ink-2); }
+    .encore a { border-bottom: 1px solid rgba(242,240,236,.3); transition: color .25s, border-color .25s; }
+    .encore a:hover { color: var(--pink); border-color: var(--pink); }
+    .stage .close {
+      position: absolute; top: 16px; right: 18px;
+      font-family: var(--mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--ink-3); background: none; border: 0; padding: 6px 0; cursor: pointer;
+    }
+    .stage .close:hover { color: var(--pink); }
+
+    /* curtains */
+    .curtain {
+      position: absolute; top: 0; bottom: 0; width: 50.5%;
+      background:
+        repeating-linear-gradient(90deg,
+          #ff6b9f 0px, #ff8fb9 18px, #ff6b9f 36px, #c4155a 54px, #a60f4a 72px, #c4155a 90px, #ff6b9f 108px),
+        #ff6b9f;
+      box-shadow: inset 0 -80px 60px -30px rgba(0,0,0,.55), inset 0 40px 40px -20px rgba(0,0,0,.35);
+      transition: transform 1.7s cubic-bezier(.77,0,.18,1);
+      will-change: transform;
+    }
+    .curtain::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,.08), transparent 15%, transparent 70%, rgba(0,0,0,.45));
+    }
+    .curtain.left  { left: 0;  transform-origin: left center;  }
+    .curtain.right { right: 0; transform-origin: right center; }
+    .curtain.right { background-position: 50px 0; }
+
+    .theater.open .curtain.left  { transform: scaleX(.07); }
+    .theater.open .curtain.right { transform: scaleX(.07); }
+
+    /* valance (top drape) */
+    .valance {
+      position: absolute; left: 0; right: 0; top: 0; height: 44px; z-index: 3;
+      background:
+        repeating-linear-gradient(90deg,
+          #ff6b9f 0px, #ff8fb9 14px, #ff6b9f 28px, #c4155a 42px, #a60f4a 56px, #c4155a 70px, #ff6b9f 84px);
+      box-shadow: 0 14px 28px rgba(0,0,0,.65);
+    }
+    .valance::after {
+      content: "";
+      position: absolute; left: 0; right: 0; bottom: -22px; height: 22px;
+      background: radial-gradient(circle at 50% 0, #d9437d 0 20px, transparent 21px) 0 0 / 44px 22px repeat-x;
+      filter: drop-shadow(0 6px 6px rgba(0,0,0,.5));
+    }
+
+    /* "tap to open" label */
+    .ticket {
+      position: absolute; left: 50%; top: 50%; z-index: 4;
+      transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      pointer-events: none;
+      transition: opacity .5s ease, transform .8s cubic-bezier(.77,0,.18,1);
+    }
+    .ticket .arrows {
+      display: flex; align-items: center; gap: 56px;
+      font-family: var(--serif); font-size: 40px; line-height: 1;
+      color: #0b0b0b;
+    }
+    .ticket .arrows span { display: inline-block; animation: nudge 2.6s ease-in-out infinite; }
+    .ticket .arrows span:last-child { animation-name: nudge-r; }
+    @keyframes nudge   { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-8px); } }
+    @keyframes nudge-r { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(8px); } }
+    .ticket .sub { font-family: var(--serif); font-style: italic; font-size: 20px; color: #0b0b0b; opacity: .85; }
+    .theater.open .ticket { opacity: 0; transform: translate(-50%, -50%) scale(.9); }
+
+    .theater-foot {
+      display: flex; justify-content: space-between;
+      margin-top: 12px;
+      color: var(--ink-3);
+    }
+
+    /* =========================================================
+       FOOTER
+       ========================================================= */
+    .footer {
+      border-top: 1px solid var(--line);
+      padding: 36px 0 48px;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+      color: var(--ink-3);
+    }
+    .footer a:hover { color: var(--pink); }
+
+    /* =========================================================
+       LIGHTBOX
+       ========================================================= */
+    #lightbox-overlay {
+      position: fixed; inset: 0; z-index: 9500;
+      background: rgba(5,5,5,.94);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .35s ease;
+    }
+    #lightbox-overlay.open { opacity: 1; pointer-events: auto; }
+    #lightbox-img {
+      max-width: min(92vw, 1200px); max-height: 88vh;
+      border: 1px solid var(--line);
+      transform: scale(.96);
+      transition: transform .4s cubic-bezier(.2,.7,.2,1);
+    }
+    #lightbox-overlay.open #lightbox-img { transform: none; }
+    #lightbox-close {
+      position: absolute; top: 18px; right: 24px;
+      font-family: var(--mono); font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--ink-2); cursor: pointer;
+    }
+    #lightbox-close:hover { color: var(--pink); }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; min-height: 0; }
+      .still { justify-self: start; max-width: 360px; }
+      .paper { grid-template-columns: 70px 1fr; }
+      .paper-thumb { grid-column: 2; max-width: 360px; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { gap: 16px; }
+      .nav-links a { font-size: 10px; letter-spacing: .12em; }
+      .nav-links a.hide-sm { display: none; }
+      .section-head { grid-template-columns: 1fr; }
+      .section-aside { text-align: left; }
+      .news { padding-left: 28px; }
+      .news li { grid-template-columns: 1fr; gap: 6px; }
+      .news li::before { left: -28px; }
+      .paper { grid-template-columns: 1fr; gap: 16px; }
+      .paper-idx .venue { display: inline; margin-left: 12px; }
+      .paper-thumb { grid-column: 1; }
+      .credits li { grid-template-columns: 1fr; gap: 4px; }
+      .theater { min-height: 360px; }
+      .valance { height: 34px; }
+      .stage { padding: 64px 16px 36px; }
+      .features { gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .feature-cap { flex-direction: column; gap: 6px; }
+      .feature-sub { white-space: normal; }
+      .encore { margin-top: 30px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .grain { animation: none; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .curtain, .stage, .ticket { transition-duration: .01s; transition-delay: 0s; }
+      .ticket .arrows span { animation: none; }
+    }
+  </style>
 </head>
 
 <body>
-  <!-- soft background blobs -->
-  <div class="bg" aria-hidden="true">
-    <span class="blob blob-1"></span>
-    <span class="blob blob-2"></span>
-    <span class="blob blob-3"></span>
-  </div>
+  <div class="grain" aria-hidden="true"></div>
 
-  <!-- top nav -->
+  <!-- ===== NAV ===== -->
   <header class="nav">
-    <a href="#top" class="nav-logo">MJ <span>✨</span></a>
+    <a href="#top" class="nav-logo">Mijin <em>Yoo</em></a>
     <nav class="nav-links" aria-label="Sections">
       <a href="#about">About</a>
       <a href="#news">News</a>
       <a href="#publications">Papers</a>
-      <a href="#awards">Honors</a>
-      <a href="#teaching">Teaching</a>
+      <a href="#honors" class="hide-sm">Honors</a>
+      <a href="#teaching" class="hide-sm">Teaching</a>
       <a href="#misc">Misc</a>
     </nav>
   </header>
@@ -84,236 +627,317 @@
     <!-- ===== HERO ===== -->
     <section id="about" class="hero reveal">
       <div class="hero-text">
-        <span class="pill pill-status"><span class="dot"></span> Ph.D. student @ Yonsei AI</span>
+        <div class="hero-kicker">
+          <span class="rule"></span>
+          <span class="mono">Ph.D. student · Yonsei University · Seoul</span>
+        </div>
+
         <h1 class="hero-name">
-          <span class="wave">👋</span> Hi, I'm<br>
-          <span class="gradient-text">Mijin Yoo</span>
+          <span class="line">Mijin</span>
+          <span class="line">Yoo</span>
+          <span class="line ital">a.k.a. MJ</span>
         </h1>
-        <p class="hero-bio">
-          I am an Integrated M.S./Ph.D. student in <strong>Artificial Intelligence</strong> at
-          <strong>Yonsei University</strong>, advised by Prof. <a href="https://www.ciplab.kr/home">Seon Joo Kim</a>.
-          I received my Bachelor's degree in Electrical and Electronic Engineering from Yonsei University in February 2025.
-        </p>
-        <p class="hero-bio">
-          My research interests lie in <strong>spatial intelligence</strong>, <strong>scene tokenization</strong>,
-          and <strong>3D/4D Gaussian Splatting</strong>.
+
+        <p class="hero-logline">
+          An Integrated M.S./Ph.D. student in <strong>Artificial Intelligence</strong> at
+          <strong>Yonsei University</strong>, advised by Prof. <a href="https://www.ciplab.kr/home" target="_blank" rel="noopener">Seon Joo Kim</a>.
+          B.S. in Electrical and Electronic Engineering, Yonsei University, February 2025.
         </p>
 
-        <div class="socials">
-          <a class="btn btn-primary" href="mailto:mijin6690@yonsei.ac.kr">✉️ Email</a>
-          <a class="btn" href="https://www.linkedin.com/in/yoomimi/" target="_blank" rel="noopener">💼 LinkedIn</a>
-          <a class="btn" href="https://github.com/yoomimi" target="_blank" rel="noopener">🐙 GitHub</a>
+        <ul class="hero-tags">
+          <li><span class="hl">Spatial intelligence</span></li>
+          <li><span class="hl">Scene tokenization</span></li>
+          <li><span class="hl">3D / 4D Gaussian Splatting</span></li>
+        </ul>
+
+        <div class="hero-ctas">
+          <a class="cta" href="mailto:mijin6690@yonsei.ac.kr">Email</a>
+          <a class="cta" href="https://www.linkedin.com/in/yoomimi/" target="_blank" rel="noopener">LinkedIn</a>
+          <a class="cta" href="https://github.com/yoomimi" target="_blank" rel="noopener">GitHub</a>
         </div>
       </div>
 
-      <div class="hero-photo">
-        <div class="photo-wrap">
-          <div class="speech-bubble">Mijin's a mouthful?<br>Just call me <strong>MJ</strong>&nbsp;✨</div>
-          <a href="images/mimi/picture.jpg" class="lightbox-link photo-ring">
-            <img src="images/mimi/picture.jpg" alt="Mijin Yoo profile photo">
+      <figure class="still" style="margin:0">
+        <div class="still-frame-wrap">
+          <a href="images/mimi/picture.jpg" class="lightbox-link still-frame">
+            <img src="images/mimi/picture.jpg" alt="Mijin Yoo">
           </a>
-          <span class="float-emoji e1" aria-hidden="true">🌸</span>
-          <span class="float-emoji e2" aria-hidden="true">💎</span>
-          <span class="float-emoji e3" aria-hidden="true">🎀</span>
         </div>
-      </div>
+      </figure>
+
     </section>
 
     <!-- ===== NEWS ===== -->
     <section id="news" class="section reveal">
-      <h2 class="section-title"><span class="emoji">📰</span> News</h2>
-      <ul class="timeline">
+      <div class="section-head">
+        <div>
+          <span class="section-num mono">01</span>
+          <h2 class="section-title"><span class="hl">News</span></h2>
+        </div>
+        <p class="section-aside mono">Recent updates</p>
+      </div>
+
+      <ul class="news">
         <li>
           <time>2026.12 – 2027.02</time>
-          <p>I will be a <strong>Visiting Scholar</strong> at <strong>UC Irvine</strong>, hosted by Prof. <a href="https://ics.uci.edu/~fowlkes/" target="_blank" rel="noopener">Charless Fowlkes</a>. 🌴</p>
+          <p>I will be a <strong>Visiting Scholar</strong> at <strong>UC Irvine</strong>, hosted by Prof. <a href="https://ics.uci.edu/~fowlkes/" target="_blank" rel="noopener">Charless Fowlkes</a>.</p>
         </li>
         <li>
           <time>2026.09</time>
-          <p>One paper accepted to <strong>NeurIPS 2026</strong>! 🎉</p>
+          <p>One paper accepted to <strong>NeurIPS 2026</strong>.</p>
         </li>
         <li>
           <time>2025.02.24</time>
-          <p>I received my Bachelor's degree in Electrical and Electronic Engineering from Yonsei University. 🎓</p>
+          <p>Received my Bachelor's degree in Electrical and Electronic Engineering from Yonsei University.</p>
         </li>
       </ul>
     </section>
 
     <!-- ===== PUBLICATIONS ===== -->
     <section id="publications" class="section reveal">
-      <h2 class="section-title"><span class="emoji">📚</span> Publications</h2>
+      <div class="section-head">
+        <div>
+          <span class="section-num mono">02</span>
+          <h2 class="section-title"><span class="hl">Publications</span></h2>
+        </div>
+        <p class="section-aside mono">* equal contribution</p>
+      </div>
 
-      <div class="papers">
+      <ul class="papers">
 
-        <article class="paper paper-featured">
+        <li class="paper">
+          <div class="paper-idx">
+            04
+            <span class="venue">NeurIPS 2026</span>
+            <span class="new">New</span>
+          </div>
+          <div class="paper-body">
+            <h3 class="paper-title">
+              <a href="https://yoomimi.github.io/instok3d/" target="_blank" rel="noopener">Scenes as Objects, Not Primitives: Instance-Structured 3D Tokenization from Unposed Views</a>
+            </h3>
+            <p class="paper-authors"><b>Mijin Yoo</b>*, In Cho*, Subin Jeon, Jiwoo Lee, Eunbyung Park, Seon Joo Kim</p>
+            <div class="paper-links">
+              <a href="https://arxiv.org/abs/2606.29513" target="_blank" rel="noopener">arXiv</a>
+              <a href="https://yoomimi.github.io/instok3d/" target="_blank" rel="noopener">Project page</a>
+            </div>
+          </div>
           <a href="images/mimi/instok3d.png" class="lightbox-link paper-thumb">
             <img src="images/mimi/instok3d.png" alt="Scenes as Objects teaser">
           </a>
+        </li>
+
+        <li class="paper">
+          <div class="paper-idx">
+            03
+            <span class="venue">arXiv 2026</span>
+          </div>
           <div class="paper-body">
-            <div class="paper-badges">
-              <span class="badge badge-new">NEW</span>
-              <span class="badge badge-venue">NeurIPS 2026</span>
-            </div>
             <h3 class="paper-title">
-              <a href="https://yoomimi.github.io/instok3d/">Scenes as Objects, Not Primitives: Instance-Structured 3D Tokenization from Unposed Views</a>
+              <a href="https://join16.github.io/page-atsplat/" target="_blank" rel="noopener">ATSplat: Compact Feed-forward 3D Gaussian Splatting with Adaptive Token Expansion</a>
             </h3>
-            <p class="paper-authors"><strong>Mijin Yoo</strong>*, In Cho*, Subin Jeon, Jiwoo Lee, Eunbyung Park, Seon Joo Kim.</p>
+            <p class="paper-authors">In Cho, Jeonghwan Cho, <b>Mijin Yoo</b>, Gim Hee Lee, Seon Joo Kim</p>
             <div class="paper-links">
-              <a class="link-pill" href="https://arxiv.org/abs/2606.29513">📄 arXiv</a>
-              <a class="link-pill" href="https://yoomimi.github.io/instok3d/">🔗 Project Page</a>
+              <a href="https://arxiv.org/abs/2607.20417" target="_blank" rel="noopener">arXiv</a>
+              <a href="https://join16.github.io/page-atsplat/" target="_blank" rel="noopener">Project page</a>
             </div>
           </div>
-        </article>
-
-        <article class="paper">
           <a href="images/mimi/atsplat.png" class="lightbox-link paper-thumb">
             <img src="images/mimi/atsplat.png" alt="ATSplat teaser">
           </a>
+        </li>
+
+        <li class="paper">
+          <div class="paper-idx">
+            02
+            <span class="venue">ICCV 2025</span>
+          </div>
           <div class="paper-body">
-            <div class="paper-badges">
-              <span class="badge badge-venue">arXiv 2026</span>
-            </div>
             <h3 class="paper-title">
-              <a href="https://join16.github.io/page-atsplat/">ATSplat: Compact Feed-forward 3D Gaussian Splatting with Adaptive Token Expansion</a>
+              <a href="https://github.com/minsu1206/ExploreGS" target="_blank" rel="noopener">ExploreGS: Explorable 3D Scene Reconstruction with Virtual Camera Samplings and Diffusion Priors</a>
             </h3>
-            <p class="paper-authors">In Cho, Jeonghwan Cho, <strong>Mijin Yoo</strong>, Gim Hee Lee, Seon Joo Kim.</p>
+            <p class="paper-authors">Minsu Kim, Subin Jeon, In Cho, <b>Mijin Yoo</b>, Seon Joo Kim</p>
             <div class="paper-links">
-              <a class="link-pill" href="https://arxiv.org/abs/2607.20417">📄 arXiv</a>
-              <a class="link-pill" href="https://join16.github.io/page-atsplat/">🔗 Project Page</a>
+              <a href="https://arxiv.org/abs/2508.06014" target="_blank" rel="noopener">arXiv</a>
+              <a href="https://exploregs.github.io/" target="_blank" rel="noopener">Project page</a>
             </div>
           </div>
-        </article>
-
-        <article class="paper">
           <a href="images/mimi/paper2.png" class="lightbox-link paper-thumb">
             <img src="images/mimi/paper2.png" alt="ExploreGS teaser">
           </a>
+        </li>
+
+        <li class="paper">
+          <div class="paper-idx">
+            01
+            <span class="venue">IEEE CG&amp;A 2024</span>
+          </div>
           <div class="paper-body">
-            <div class="paper-badges">
-              <span class="badge badge-venue">ICCV 2025</span>
-            </div>
             <h3 class="paper-title">
-              <a href="https://github.com/minsu1206/ExploreGS">ExploreGS: Explorable 3D Scene Reconstruction with Virtual Camera Samplings and Diffusion Priors</a>
+              <a href="https://ieeexplore.ieee.org/document/10478358" target="_blank" rel="noopener">Is Less More? Rendering for Esports</a>
             </h3>
-            <p class="paper-authors">Minsu Kim, Subin Jeon, In Cho, <strong>Mijin Yoo</strong>, Seon Joo Kim.</p>
+            <p class="paper-authors">Benjamin Watson, Josef Spjut, Joohwan Kim, Byungjoo Lee, <b>Mijin Yoo</b>, Peter Shirley</p>
+            <p class="paper-venue">IEEE Computer Graphics and Applications, March–April 2024</p>
             <div class="paper-links">
-              <a class="link-pill" href="https://arxiv.org/abs/2508.06014">📄 arXiv</a>
-              <a class="link-pill" href="https://exploregs.github.io/">🔗 Project Page</a>
+              <a href="https://ieeexplore.ieee.org/document/10478358" target="_blank" rel="noopener">Paper</a>
             </div>
           </div>
-        </article>
-
-        <article class="paper">
           <a href="images/mimi/paper1.jpg" class="lightbox-link paper-thumb">
             <img src="images/mimi/paper1.jpg" alt="Rendering for Esports teaser">
           </a>
-          <div class="paper-body">
-            <div class="paper-badges">
-              <span class="badge badge-venue">IEEE CG&amp;A 2024</span>
-            </div>
-            <h3 class="paper-title">
-              <a href="https://ieeexplore.ieee.org/document/10478358">Is Less More? Rendering for Esports</a>
-            </h3>
-            <p class="paper-authors">Benjamin Watson, Josef Spjut, Joohwan Kim, Byungjoo Lee, <strong>Mijin Yoo</strong>, Peter Shirley.</p>
-            <p class="paper-venue"><em>IEEE Computer Graphics and Applications</em>, March–April 2024</p>
-            <div class="paper-links">
-              <a class="link-pill" href="https://ieeexplore.ieee.org/document/10478358">📄 Paper</a>
-            </div>
-          </div>
-        </article>
+        </li>
 
-      </div>
+      </ul>
     </section>
 
-    <!-- ===== HONORS & AWARDS ===== -->
-    <section id="awards" class="section reveal">
-      <h2 class="section-title"><span class="emoji">🏆</span> Honors &amp; Awards</h2>
-      <ul class="list">
-        <li class="card list-item">
-          <div class="list-icon">🎓</div>
-          <div class="list-body">
-            <p class="list-title">AI Seoul Tech Scholarship</p>
-            <p class="list-desc">Seoul Metropolitan Government · One-year scholarship</p>
+    <!-- ===== HONORS + TEACHING ===== -->
+    <section id="honors" class="section reveal">
+      <div class="section-head">
+        <div>
+          <span class="section-num mono">03</span>
+          <h2 class="section-title"><span class="hl">Honors &amp; Awards</span></h2>
+        </div>
+      </div>
+
+      <ul class="credits">
+        <li>
+          <span class="when">2026</span>
+          <div>
+            <p class="what">AI Seoul Tech Scholarship</p>
+            <p class="sub">Seoul Metropolitan Government · One-year scholarship</p>
           </div>
-          <span class="list-when">2026</span>
         </li>
-        <li class="card list-item">
-          <div class="list-icon">🎓</div>
-          <div class="list-body">
-            <p class="list-title">AI Seoul Tech Scholarship</p>
-            <p class="list-desc">Seoul Metropolitan Government · One-semester scholarship</p>
+        <li>
+          <span class="when">Fall 2025</span>
+          <div>
+            <p class="what">AI Seoul Tech Scholarship</p>
+            <p class="sub">Seoul Metropolitan Government · One-semester scholarship</p>
           </div>
-          <span class="list-when">Fall 2025</span>
         </li>
-        <li class="card list-item">
-          <div class="list-icon">🥉</div>
-          <div class="list-body">
-            <p class="list-title"><strong>3rd Place</strong>, <a href="https://sites.google.com/view/ultrra-wacv-2025?pli=1">ULTRRA Challenge</a> (WACV 2025 Workshop)</p>
-            <p class="list-desc">Unconstrained Large-scale Three-dimensional Reconstruction and Rendering across Altitudes</p>
+        <li>
+          <span class="when">2025</span>
+          <div>
+            <p class="what">3rd Place, <a href="https://sites.google.com/view/ultrra-wacv-2025?pli=1" target="_blank" rel="noopener">ULTRRA Challenge</a></p>
+            <p class="sub">WACV 2025 Workshop · Unconstrained Large-scale 3D Reconstruction and Rendering across Altitudes</p>
           </div>
-          <span class="list-when">2025</span>
         </li>
-        <li class="card list-item">
-          <div class="list-icon">🏅</div>
-          <div class="list-body">
-            <p class="list-title">Honors Award for Academic Excellence</p>
-            <p class="list-desc">Yonsei University</p>
+        <li>
+          <span class="when">Spring 2024</span>
+          <div>
+            <p class="what">Honors Award for Academic Excellence</p>
+            <p class="sub">Yonsei University</p>
           </div>
-          <span class="list-when">Spring 2024</span>
         </li>
       </ul>
     </section>
 
     <!-- ===== TEACHING ===== -->
     <section id="teaching" class="section reveal">
-      <h2 class="section-title"><span class="emoji">🧑‍🏫</span> Teaching Experience</h2>
-      <div class="card teaching">
-        <div class="teaching-head">
-          <p class="list-title">Teaching Assistant, Yonsei University</p>
-          <span class="list-when">Mar. 2025 – Present</span>
+      <div class="section-head">
+        <div>
+          <span class="section-num mono">04</span>
+          <h2 class="section-title"><span class="hl">Teaching</span></h2>
         </div>
-        <ul class="courses">
-          <li>
-            <span class="course-name">Global Leadership</span> <span class="course-code">YCI1853</span>
-            <span class="course-meta">undergraduate · Spring 2026, Fall 2026 <span class="badge badge-new">current</span></span>
-          </li>
-          <li>
-            <span class="course-name">Introduction to Artificial Intelligence and Applications</span> <span class="course-code">AIC2120</span>
-            <span class="course-meta">undergraduate · Fall 2025</span>
-          </li>
-          <li>
-            <span class="course-name">Computer Vision</span> <span class="course-code">CAS3116</span>
-            <span class="course-meta">undergraduate · Spring 2025</span>
-          </li>
-        </ul>
+        <p class="section-aside mono">Teaching Assistant · Yonsei University · Mar. 2025 – Present</p>
       </div>
+
+      <ul class="credits">
+        <li>
+          <span class="when">2026</span>
+          <div>
+            <p class="what">Global Leadership</p>
+            <p class="sub">YCI1853 · undergraduate · Spring &amp; Fall 2026 <span class="tag">current</span></p>
+          </div>
+        </li>
+        <li>
+          <span class="when">Fall 2025</span>
+          <div>
+            <p class="what">Introduction to Artificial Intelligence and Applications</p>
+            <p class="sub">AIC2120 · undergraduate</p>
+          </div>
+        </li>
+        <li>
+          <span class="when">Spring 2025</span>
+          <div>
+            <p class="what">Computer Vision</p>
+            <p class="sub">CAS3116 · undergraduate</p>
+          </div>
+        </li>
+      </ul>
     </section>
 
-    <!-- ===== MISC ===== -->
+    <!-- ===== MISC — THE THEATER ===== -->
     <section id="misc" class="section reveal">
-      <h2 class="section-title"><span class="emoji">🍧</span> Miscellaneous</h2>
-      <div class="card misc">
-        <p class="misc-text">
-          I love
-          <a href="images/mimi/Movies_MJ.png" class="lightbox-link misc-link">movies</a> 🎬
-          and
-          <a href="https://open.spotify.com/user/31qoxu6kivtyzf7wuh2snb2txuqu?si=f661910c37024285" target="_blank" rel="noopener" class="misc-link">music</a> 🎧
-        </p>
-        <p class="misc-hint">(psst, click them 👀)</p>
-        <p class="misc-text misc-text-sm">
-          Oh, and I have a <a href="https://www.youtube.com/@163.o2" target="_blank" rel="noopener" class="misc-link">YouTube channel</a> 📺
-          Curious? Just click it!
-        </p>
+      <div class="section-head">
+        <div>
+          <span class="section-num mono">05</span>
+          <h2 class="section-title"><span class="hl">After Hours</span></h2>
+        </div>
+        <p class="section-aside mono">Miscellaneous</p>
+      </div>
+
+      <div class="theater-wrap">
+        <div class="theater" id="theater" role="button" tabindex="0" aria-expanded="false" aria-label="Open the curtain">
+          <!-- what's behind the curtain -->
+          <div class="stage">
+            <button class="close" type="button" id="theater-close" aria-label="Close the curtain">Close ✕</button>
+            <p class="marquee mono">Now showing · Double feature</p>
+
+            <div class="features">
+              <a href="images/mimi/Movies_MJ.png" class="feature lightbox-link">
+                <span class="feature-frame">
+                  <img src="images/mimi/web/MJ_movie.jpg" alt="MJ holding a phone showing Spider-Man over her eyes" loading="lazy">
+                  <span class="feature-reel mono">Reel 01</span>
+                </span>
+                <span class="feature-cap">
+                  <span class="feature-title">Movies</span>
+                  <span class="feature-sub mono">See the watchlist →</span>
+                </span>
+              </a>
+
+              <a href="https://open.spotify.com/user/31qoxu6kivtyzf7wuh2snb2txuqu?si=f661910c37024285" target="_blank" rel="noopener" class="feature">
+                <span class="feature-frame">
+                  <img src="images/mimi/web/MJ_music.jpg" alt="MJ holding a Radiohead record in a record shop" loading="lazy">
+                  <span class="feature-reel mono">Reel 02</span>
+                </span>
+                <span class="feature-cap">
+                  <span class="feature-title">Music</span>
+                  <span class="feature-sub mono">On repeat, Spotify →</span>
+                </span>
+              </a>
+            </div>
+
+            <p class="encore">
+              <span class="ital">Oh, and there's a</span>
+              <a href="https://www.youtube.com/@163.o2" target="_blank" rel="noopener">YouTube channel</a>.
+            </p>
+          </div>
+
+          <!-- curtains -->
+          <div class="curtain left" aria-hidden="true"></div>
+          <div class="curtain right" aria-hidden="true"></div>
+          <div class="valance" aria-hidden="true"></div>
+
+          <div class="ticket" aria-hidden="true">
+            <span class="arrows" aria-hidden="true"><span>←</span><span>→</span></span>
+            <span class="sub">click to open the curtain</span>
+          </div>
+        </div>
+
+        <div class="theater-foot mono">
+          <span>Screening room</span>
+          <span>No intermission</span>
+        </div>
       </div>
     </section>
 
-    <footer class="footer">
-      <p>Made with 🩷 by MJ</p>
+    <footer class="footer mono">
+      <span>© 2026 Mijin Yoo</span>
     </footer>
   </main>
 
   <!-- lightbox -->
   <div id="lightbox-overlay">
-    <span id="lightbox-close" aria-label="Close">&times;</span>
+    <span id="lightbox-close" aria-label="Close">Close ✕</span>
     <img id="lightbox-img" src="" alt="enlarged image">
   </div>
 
@@ -324,29 +948,54 @@
       var lightboxImg = document.getElementById("lightbox-img");
       var closeBtn = document.getElementById("lightbox-close");
 
-      function openLightbox(src) {
-        lightboxImg.src = src;
-        overlay.classList.add("open");
-      }
-      function closeLightbox() {
-        overlay.classList.remove("open");
-        lightboxImg.src = "";
-      }
+      function openLightbox(src) { lightboxImg.src = src; overlay.classList.add("open"); }
+      function closeLightbox() { overlay.classList.remove("open"); lightboxImg.src = ""; }
 
       var links = document.querySelectorAll("a.lightbox-link");
       for (var i = 0; i < links.length; i++) {
         links[i].addEventListener("click", function (e) {
           e.preventDefault();
+          e.stopPropagation();
           openLightbox(this.getAttribute("href"));
         });
       }
       closeBtn.addEventListener("click", closeLightbox);
-      overlay.addEventListener("click", function (e) {
-        if (e.target === overlay) closeLightbox();
+      overlay.addEventListener("click", function (e) { if (e.target === overlay) closeLightbox(); });
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeLightbox(); });
+
+      // ---- theater curtain ----
+      var theater = document.getElementById("theater");
+      var theaterClose = document.getElementById("theater-close");
+
+      function openCurtain() {
+        theater.classList.add("open");
+        theater.setAttribute("aria-expanded", "true");
+        theater.style.cursor = "default";
+      }
+      function closeCurtain() {
+        theater.classList.remove("open");
+        theater.setAttribute("aria-expanded", "false");
+        theater.style.cursor = "pointer";
+      }
+      theater.addEventListener("click", function (e) {
+        if (theater.classList.contains("open")) return;   // links inside work normally once open
+        openCurtain();
       });
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") closeLightbox();
+      theater.addEventListener("keydown", function (e) {
+        if ((e.key === "Enter" || e.key === " ") && !theater.classList.contains("open")) {
+          e.preventDefault();
+          openCurtain();
+        }
       });
+      theaterClose.addEventListener("click", function (e) {
+        e.stopPropagation();
+        closeCurtain();
+      });
+      // stop link clicks inside the stage from bubbling up
+      var stageLinks = theater.querySelectorAll(".stage a");
+      for (var j = 0; j < stageLinks.length; j++) {
+        stageLinks[j].addEventListener("click", function (e) { e.stopPropagation(); });
+      }
 
       // ---- scroll reveal ----
       var reveals = document.querySelectorAll(".reveal");
@@ -355,7 +1004,7 @@
           entries.forEach(function (en) {
             if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
           });
-        }, { threshold: 0.12 });
+        }, { threshold: 0.1 });
         reveals.forEach(function (el) { io.observe(el); });
       } else {
         reveals.forEach(function (el) { el.classList.add("in"); });
@@ -367,7 +1016,7 @@
         return document.querySelector(a.getAttribute("href"));
       });
       function updateNav() {
-        var y = window.scrollY + 140;
+        var y = window.scrollY + 160;
         var current = 0;
         sections.forEach(function (s, i) { if (s && s.offsetTop <= y) current = i; });
         navLinks.forEach(function (a, i) { a.classList.toggle("active", i === current); });
