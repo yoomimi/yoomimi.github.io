@@ -124,9 +124,20 @@ function notify_(name, message) {
   }
 }
 
-// Run this once from the editor (select "testNotify" > Run) after adding
-// the mail feature. It makes Apps Script ask for the mail permission and
-// sends a test mail so you can confirm delivery.
+// ---------- one-time setup ----------
+// Run this once from the editor (select "setup" > Run) after pasting new
+// code. It touches every service the web app uses, so the permission
+// prompt asks for all of them at once (sheet + mail + email address).
+// Then redeploy a new version.
+function setup() {
+  var sh = sheet_();
+  Logger.log('Sheet OK: ' + SpreadsheetApp.getActiveSpreadsheet().getName() + ' / ' + sh.getName() + ', rows=' + sh.getLastRow());
+  Logger.log('Mail OK: remaining daily quota=' + MailApp.getRemainingDailyQuota());
+  Logger.log('Notify to: ' + (PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL') || Session.getEffectiveUser().getEmail()));
+  Logger.log('OWNER_KEY set: ' + !!PropertiesService.getScriptProperties().getProperty('OWNER_KEY'));
+}
+
+// Sends a test mail so you can confirm delivery.
 function testNotify() {
   var to = PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL')
     || Session.getEffectiveUser().getEmail();
